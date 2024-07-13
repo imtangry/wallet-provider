@@ -2,17 +2,40 @@
   "name": "@octopus/providers",
   "version": "0.0.1",
   "description": "A JavaScript Ethereum provider supporting EIP-1193 and EIP-6963",
+  "author": "Rhys Tang",
+  "keywords": [
+    "ethereum",
+    "provider",
+    "library"
+  ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "keywords": [
-    "ethereum",
-    "provider",
-    "library"
-  ],
-  "author": "Rhys Tang",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "scripts": {
+    "build": "ts-bridge --project tsconfig.build.json"
+  },
+  "devDependencies": {
+    "@ts-bridge/cli": "^0.2.0",
+    "@types/node": "^20.14.10",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "@ts-bridge/shims": "^0.1.1"
+  },
   "license": "MIT"
 }
