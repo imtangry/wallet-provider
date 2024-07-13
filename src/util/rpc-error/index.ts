@@ -1,4 +1,4 @@
-interface rpcErrorAgs  {
+interface rpcErrorAgs {
     message: string,
     data?: any
 }
@@ -24,6 +24,10 @@ class ProviderRpcError extends Error {
     }
 }
 
+type errorsArg =
+    | rpcErrorAgs
+    | string;
+
 
 import {errorCodes} from "./error-constant";
 
@@ -35,7 +39,7 @@ export const providerRpcErrors = {
      * @param arg - The error message or options bag.
      * @returns An instance of the {@link ProviderRpcError} interface.
      */
-    userRejectedRequest: (arg?: rpcErrorAgs) => {
+    userRejectedRequest: (arg?: errorsArg) => {
         return getProviderError(errorCodes.provider.userRejectedRequest, arg)
     },
 
@@ -45,7 +49,7 @@ export const providerRpcErrors = {
      * @param arg - The error message or options bag.
      * @returns An instance of the {@link ProviderRpcError} interface.
      */
-    unauthorized: (arg?: rpcErrorAgs) => {
+    unauthorized: (arg?: errorsArg) => {
         return getProviderError(errorCodes.provider.unauthorized, arg);
     },
 
@@ -55,7 +59,7 @@ export const providerRpcErrors = {
      * @param arg - The error message or options bag.
      * @returns An instance of the {@link ProviderRpcError} interface.
      */
-    unsupportedMethod: (arg?: rpcErrorAgs) => {
+    unsupportedMethod: (arg?: errorsArg) => {
         return getProviderError(errorCodes.provider.unsupportedMethod, arg);
     },
 
@@ -65,7 +69,7 @@ export const providerRpcErrors = {
      * @param arg - The error message or options bag.
      * @returns An instance of the {@link ProviderRpcError} interface.
      */
-    disconnected: (arg?: rpcErrorAgs) => {
+    disconnected: (arg?: errorsArg) => {
         return getProviderError(errorCodes.provider.disconnected, arg);
     },
 
@@ -75,25 +79,31 @@ export const providerRpcErrors = {
      * @param arg - The error message or options bag.
      * @returns An instance of the {@link ProviderRpcError} interface.
      */
-    chainDisconnected: (arg?: rpcErrorAgs) => {
+    chainDisconnected: (arg?: errorsArg) => {
         return getProviderError(errorCodes.provider.chainDisconnected, arg);
     }
 }
 
-export const rpcErrors = {};
+export const rpcErrors = {
+    invalidRequest: (arg?: errorsArg) => {
+        return getProviderError(errorCodes.rpc.invalidRequest, arg);
+    },
+};
 
 function getProviderError(
     code: number,
-    arg?: rpcErrorAgs,
+    arg?: errorsArg,
 ): ProviderRpcError {
     const [message, data] = parseOpts(arg);
     return new ProviderRpcError(code, message, data);
 }
 
-function parseOpts(arg?: rpcErrorAgs): [message?: string | undefined, data?: any] {
+function parseOpts(arg?: errorsArg): [message?: string, data?: any] {
     if (arg) {
-        if (typeof arg === 'object' && !Array.isArray(arg)) {
-            const { message, data } = arg;
+        if (typeof arg === 'string') {
+            return [arg];
+        } else if (typeof arg === 'object' && !Array.isArray(arg)) {
+            const {message, data} = arg;
 
             if (!message) {
                 throw new Error('Must specify string message.');
@@ -101,7 +111,6 @@ function parseOpts(arg?: rpcErrorAgs): [message?: string | undefined, data?: any
             return [message, data];
         }
     }
-
     return [];
 }
 

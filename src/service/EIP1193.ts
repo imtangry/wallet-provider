@@ -16,7 +16,7 @@ export interface EthSubscription extends ProviderMessage {
     };
 }
 
-export interface EIP1613 {
+export interface EIP1193 {
     // integer ID of the connected chain as a hexadecimal string
     chainId: string | null;
 
