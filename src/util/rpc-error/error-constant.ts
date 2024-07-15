@@ -1,3 +1,7 @@
+interface ErrorValue {
+    [prop: string]: {standard: string; message: string};
+}
+
 export const errorCodes = {
     rpc: {
         invalidInput: -32000,
@@ -21,7 +25,9 @@ export const errorCodes = {
     },
 };
 
-export const errorValues = {
+
+
+export const errorValues: ErrorValue = {
     '-32700': {
         standard: 'JSON RPC 2.0',
         message:

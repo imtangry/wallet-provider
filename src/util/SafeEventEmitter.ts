@@ -1,6 +1,7 @@
-import { EventEmitter } from 'events';
+import {EventEmitter} from 'events';
 
 type Handler = (...args: any[]) => void;
+
 interface EventMap {
     [k: string]: Handler | Handler[] | undefined;
 }
@@ -66,9 +67,12 @@ export default class SafeEventEmitter extends EventEmitter {
             safeApply(handler, this, args);
         } else {
             const len = handler.length;
-            const listeners =   (handler);
+            const listeners = arrayClone(handler);
             for (let i = 0; i < len; i += 1) {
-                safeApply(listeners[i], this, args);
+                const _handler = listeners[i];
+                if (_handler!== undefined && typeof _handler === 'function') {
+                    safeApply(_handler, this, args);
+                }
             }
         }
 

@@ -1,14 +1,5 @@
-import SafeEventEmitter from './util/SafeEventEmitter'
+import { createInpageProvider} from "./create-inpage-provider";
 
-const WebWalletProvider = {}
-
-export type RequestArguments = {
-    /** The RPC method to request. */
-    method: string;
-    /** The params of the RPC method, if any. */
-    params?: unknown[] | Record<string, unknown>;
-};
-
-export {
-    WebWalletProvider
+export default {
+    createInpageProvider
 }
