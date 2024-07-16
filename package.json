@@ -1,5 +1,5 @@
 {
-  "name": "@octopus/providers",
+  "name": "octopus-providers",
   "version": "0.0.1",
   "description": "A JavaScript Ethereum provider supporting EIP-1193 and EIP-6963",
   "author": "Rhys Tang",

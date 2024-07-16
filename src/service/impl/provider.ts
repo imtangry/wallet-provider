@@ -18,11 +18,16 @@ export default class Provider extends SafeEventEmitter implements EIP1193 {
     protected isConnected: boolean; // 当前连接状态
     protected isUnlocked: boolean; // 钱包是否解锁
 
+    #messageTarget: string; // 目标窗口的名称
+    #messageName: string; // 消息名称
+
     constructor() {
         super();
 
         this.#chainId = null;
         this.#selectedAddress = null;
+        this.#messageTarget = 'octopus-content-js';
+        this.#messageName = 'octopus-request';
         this.accounts = null;
         this.initialized = false;
         this.isConnected = false;
@@ -33,7 +38,17 @@ export default class Provider extends SafeEventEmitter implements EIP1193 {
         this.handleConnect = this.handleConnect.bind(this);
         this.handleDisconnect = this.handleDisconnect.bind(this);
 
+        // 处理消息传输 window.postMessage
+        window.addEventListener('message', (event) => {
+            const {data} = event;
+        });
+
+        window.postMessage({type: 'wallet_init'}, '*');
+
+        // 初始化钱包状态
         this.init();
+
+        // 发送网站metadata到钱包
     }
 
     // 获取钱包当前的状态 生命周期内智能初始化一次
