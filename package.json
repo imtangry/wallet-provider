@@ -1,6 +1,6 @@
 {
   "name": "octopus-providers",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A JavaScript Ethereum provider supporting EIP-1193 and EIP-6963",
   "author": "Rhys Tang",
   "keywords": [
@@ -27,13 +27,16 @@
     }
   },
   "scripts": {
-    "build": "ts-bridge --project tsconfig.build.json"
+    "build": "ts-bridge --project tsconfig.build.json",
+    "test": "browserify test/test.js > test/bundle.js"
   },
   "devDependencies": {
     "@ts-bridge/cli": "^0.2.0",
     "@ts-bridge/shims": "^0.1.1",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.10",
+    "@types/uuid": "^10.0.0",
+    "browserify": "^17.0.0",
     "jest": "^29.7.0",
     "jest-chrome": "^0.8.0",
     "jest-environment-jsdom": "^29.7.0",
@@ -41,7 +44,8 @@
     "typescript": "^5.5.3"
   },
   "dependencies": {
-    "fast-deep-equal": "^3.1.3"
+    "fast-deep-equal": "^3.1.3",
+    "uuid": "^10.0.0"
   },
   "license": "MIT"
 }

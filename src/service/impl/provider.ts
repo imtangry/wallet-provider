@@ -4,12 +4,13 @@ import messages from "../../util/error-messages";
 import SafeEventEmitter from "../../util/SafeEventEmitter";
 import dequal from 'fast-deep-equal';
 import {isValidChainId, getRpcPromiseCallback} from "../../util";
+import {RpcResponseData, RpcCenter} from "../../util/rpc-center/RpcCenter";
 
 export default class Provider extends SafeEventEmitter implements EIP1193 {
     protected initialized: boolean;
 
     // TODO 事件中心 是 content-js 和 inject-js交互的桥梁
-    protected rpcCenter: any;
+    protected rpcCenter: RpcCenter;
 
     // 这里的状态变量应该都是对于客户端而言
     #chainId: string | null; //当前连接的链id
@@ -38,16 +39,10 @@ export default class Provider extends SafeEventEmitter implements EIP1193 {
         this.handleConnect = this.handleConnect.bind(this);
         this.handleDisconnect = this.handleDisconnect.bind(this);
 
-        // 处理消息传输 window.postMessage
-        window.addEventListener('message', (event) => {
-            const {data} = event;
-        });
-
-        window.postMessage({type: 'wallet_init'}, '*');
+        this.rpcCenter = new RpcCenter({target: this.#messageTarget, name: this.#messageName});
 
         // 初始化钱包状态
         this.init();
-
         // 发送网站metadata到钱包
     }
 
@@ -57,7 +52,6 @@ export default class Provider extends SafeEventEmitter implements EIP1193 {
             throw new Error('Provider already initialized.');
         }
         // TODO 获取插件钱包的状态
-        this.rpcCenter = null;
         this.initialized = true;
 
         this.emit('_initialized');
@@ -115,8 +109,8 @@ export default class Provider extends SafeEventEmitter implements EIP1193 {
     }
 
     protected handleChainChanged({chainId}:
-                           | { chainId?: string | undefined; networkVersion?: string | undefined }
-                           | undefined = {}) {
+                                     | { chainId?: string | undefined; networkVersion?: string | undefined }
+                                     | undefined = {}) {
         if (!isValidChainId(chainId)) return;
 
         this.handleConnect(chainId);
@@ -165,10 +159,21 @@ export default class Provider extends SafeEventEmitter implements EIP1193 {
     }
 
     protected handleRpcRequest(payload: any, callback: any): void {
+        let callbackWrapper = callback;
+
         if (['eth_accounts', 'eth_requestAccounts'].includes(payload.method)) {
-
-        } else {
-
+            // 需要包装一下回调函数，处理account变换的情况
+            callbackWrapper = (
+                error: Error,
+                response: RpcResponseData,
+            ) => {
+                this.handleAccountsChanged(
+                    <Array<string>>response ?? [],
+                );
+                callback(error, response);
+            };
         }
+        // 其他方法直接调用rpcCenter的send方法
+        this.rpcCenter.send(payload, callbackWrapper);
     }
 }
