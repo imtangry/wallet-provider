@@ -1,4 +1,4 @@
-import {randomUUID} from "crypto";
+import { v4 as uuid } from 'uuid';
 
 interface rpcOptions {
     name: string;
@@ -12,7 +12,7 @@ export interface rpcRequest {
     method: string
 }
 
-export type  RpcResponseData = number | string | Record<string, unknown> | unknown[];
+export type RpcResponseData = number | string | Record<string, unknown> | unknown[];
 
 export interface PostMessageEvent {
     data?: RpcResponseData
@@ -24,7 +24,7 @@ export interface PostMessageEvent {
 
 export class RpcCenter {
     #maxRequestCount: number
-    #requestMap: Map<string, (error, response) => void>
+    #requestMap: Map<string, (error: Error, response: any) => void>
     #target: string
     #name: string
     #targetOrigin: string
@@ -37,6 +37,9 @@ export class RpcCenter {
         ) {
             throw new Error('window.postMessage is not a function. This class should only be instantiated in a Window.');
         }
+
+        this.#maxRequestCount = 100;
+        this.#requestMap = new Map();
 
         this.#name = name;
         this.#target = target;
@@ -53,7 +56,7 @@ export class RpcCenter {
     // receive(callback: (data: any) => void) {
     // }
 
-    send(data: rpcRequest, callback: (error, response) => void): void {
+    send(data: rpcRequest, callback: (error: Error, response: any) => void): void {
         this.postMessage(data, callback);
     }
 
@@ -62,17 +65,17 @@ export class RpcCenter {
         const msgId = event.id;
         const callback = this.#requestMap.get(msgId);
         if (callback) {
-            callback(null, event.data);
+            callback((null as unknown) as Error, event.data);
             this.#requestMap.delete(msgId);
         }
     }
 
     // 如果服务端超时 或者其他问题导致对方没有收到消息怎么处理 ？
-    private postMessage(data: rpcRequest, callback: (error, response) => void): void {
+    private postMessage(data: rpcRequest, callback: (error: Error, response: any) => void): void {
         if (this.#requestMap.size >= this.#maxRequestCount) {
             return callback(new Error('Too many requests in progress. Please try again later.'), null);
         }
-        const msgId = randomUUID()
+        const msgId = uuid()
         this.#targetWindow.postMessage(
             {
                 id: msgId,
