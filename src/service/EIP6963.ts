@@ -6,7 +6,7 @@ export enum EIP6963EventNames {
     Request = 'eip6963:requestProvider', // eslint-disable-line @typescript-eslint/no-shadow
 }
 
-declare global{
+declare global {
     interface WindowEventMap {
         [EIP6963EventNames.Request]: EIP6963RequestProviderEvent;
         [EIP6963EventNames.Announce]: EIP6963AnnounceProviderEvent;
