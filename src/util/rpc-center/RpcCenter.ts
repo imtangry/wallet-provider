@@ -60,6 +60,8 @@ export class RpcCenter {
         this.postMessage(data, callback);
     }
 
+    // 发送消息和接受消息 具体 要怎么处理消息 由其他的程序去实现么？
+
     // TODO 需要处理 后端主动推送的消息 比如切换链 断开连接等
     private onMessage(event: PostMessageEvent): void {
         if(event.origin!== this.#targetOrigin || event.target!== this.#name) return
